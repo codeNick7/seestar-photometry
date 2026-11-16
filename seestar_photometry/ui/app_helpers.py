@@ -35,18 +35,40 @@ def load_fits_preview(
     if not path.exists():
         raise FileNotFoundError(f"FITS file not found: {path}")
 
-    with fits.open(path, memmap=True) as hdul:
+    try:
+        hdul = fits.open(path, memmap=True)
+        # Check if data access works with memmap
+        _ = hdul[0].data
+    except (ValueError, OSError):
+        hdul = fits.open(path, memmap=False)
+
+    with hdul:
         # Extract primary or first image HDU
         hdu = None
         for h in hdul:
-            if h.data is not None and len(h.data.shape) >= 2:
-                hdu = h
-                break
+            try:
+                if h.data is not None and len(h.data.shape) >= 2:
+                    hdu = h
+                    break
+            except (ValueError, OSError):
+                # Fallback to reopen without memmap if needed
+                pass
+
+        if hdu is None:
+            # Reopen completely without memmap if needed
+            with fits.open(path, memmap=False) as hdul_fallback:
+                for h in hdul_fallback:
+                    if h.data is not None and len(h.data.shape) >= 2:
+                        data = h.data.astype(np.float32)
+                        header = dict(h.header)
+                        hdu = h
+                        break
+        else:
+            data = hdu.data.astype(np.float32)
+            header = dict(hdu.header)
+
         if hdu is None:
             raise ValueError(f"No 2D image data found in {path}")
-
-        data = hdu.data.astype(np.float32)
-        header = dict(hdu.header)
 
         # Handle 3D / RGB data (channels first or last)
         if len(data.shape) == 3:
@@ -133,11 +155,13 @@ def detect_candidate_stars(
         # Sort by flux descending
         sources.sort("flux", reverse=True)
         candidates = []
+        x_col = "x_centroid" if "x_centroid" in sources.colnames else "xcentroid"
+        y_col = "y_centroid" if "y_centroid" in sources.colnames else "ycentroid"
         for i, row in enumerate(sources[:max_stars]):
             candidates.append({
                 "id": i + 1,
-                "x": float(row["xcentroid"]),
-                "y": float(row["ycentroid"]),
+                "x": float(row[x_col]),
+                "y": float(row[y_col]),
                 "flux": float(row["flux"]),
                 "peak": float(row["peak"]),
             })
@@ -171,6 +195,11 @@ def create_plotly_lightcurve(
         valid_df = plot_df[plot_df["diff_magnitude"].notna()].copy()
         if len(valid_df) == 0:
             return None
+
+        if "frame" not in valid_df.columns:
+            valid_df["frame"] = np.arange(len(valid_df))
+        if "filename" not in valid_df.columns:
+            valid_df["filename"] = [f"frame_{i:04d}" for i in range(len(valid_df))]
 
         mean_mag = valid_df["diff_magnitude"].mean()
         std_mag = valid_df["diff_magnitude"].std()

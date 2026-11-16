@@ -4,6 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Powered by Astropy](https://img.shields.io/badge/powered%20by-Astropy-orange.svg)](https://www.astropy.org/)
 [![UI: Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B.svg)](https://streamlit.io/)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-codeNick7%2Fseestar--photometry-blue.svg)](https://github.com/codeNick7/seestar-photometry.git)
 
 A high-performance, precision differential photometry and light-curve analysis pipeline optimized for large FITS datasets (5–10+ GB) from the **ZWO SeeStar S50** smart telescope and similar astronomical instruments.
 
@@ -18,6 +19,88 @@ Smart telescopes like the ZWO SeeStar S50 have revolutionized amateur astronomy 
 - **Dual UI:** Use the built-in **interactive Desktop GUI** (with sub-pixel star selection and undo) or the **modern Streamlit Web Dashboard** for browser-based workflow and interactive Plotly light curves.
 - **AAVSO VSX Safety Guard:** Automatically queries the AAVSO International Variable Star Index (VSX) and SIMBAD in real time to alert you if a chosen reference star is an unrecognized variable star.
 - **Adaptive Precision:** Dynamically computes stellar Full Width at Half Maximum (FWHM), adapts circular aperture radii, refines centroids with sub-pixel precision, and corrects for atmospheric extinction using differential reference star ensembles.
+
+---
+
+## 📸 Interactive Web Dashboard Walkthrough
+
+### 🎬 Animated Workflow Demo
+![SeeStar Photometry Interactive App Walkthrough](docs/screenshots/app_demo_walkthrough.gif)
+> 📹 *A high-resolution video version is available at [`docs/screenshots/app_demo_walkthrough.mp4`](docs/screenshots/app_demo_walkthrough.mp4).*
+
+---
+
+### Stage-by-Stage Interface Tour
+
+#### 1. Pipeline Setup, FITS Frame Inspection & Stretches
+![Pipeline Setup & FITS Inspection](docs/screenshots/01_pipeline_setup_fits_preview.png)
+- **Automatic Dataset Discovery:** Immediately scans all `.fit` / `.fits` frames from your SeeStar directory (demonstrated above on 228 sub-exposures of the eclipsing binary Algol).
+- **Header Metadata Extraction:** Displays target object (`Algol`), exposure duration (`10.0 s`), optical filter (`IRCUT`), sensor resolution (`1080 × 1920`), and telescope identifier (`S50`).
+- **Astronomical Stretch Engine:** Real-time dynamic stretching including **Asinh**, **ZScale**, **Log**, and **Linear** with astronomical colormaps (`gray`, `magma`, `viridis`, `bone`) and contrast tuning.
+
+---
+
+#### 2. Target & Reference Star Selection with Live Apertures
+![Target and Reference Star Selection with Aperture Overlay](docs/screenshots/02_star_selection_apertures.png)
+- **Candidate Star Detection:** Automatic source detection using `DAOStarFinder` and Gaussian profile estimation.
+- **Aperture & Annulus Visualization:**
+  - 🟢 **Target Star (Green):** Circular photometric aperture.
+  - 🔵 **Reference Star 1 (Cyan):** Primary comparison star aperture.
+  - 🟣 **Reference Star 2 (Purple):** Secondary ensemble comparison star aperture.
+  - 🟡 **Sky Background Annuli (Yellow Dashed/Dotted):** Inner and outer radii for local background subtraction.
+
+---
+
+#### 3. AAVSO VSX Variable Star Catalog Verification
+![AAVSO VSX Real-time Variable Star Check](docs/screenshots/03_aavso_vsx_safety_check.png)
+- **Safety Guard:** Verifies comparison stars against the **AAVSO International Variable Star Index (VSX)** and SIMBAD.
+- **WCS Coordinate Mapping:** Automatically translates pixel coordinates to celestial coordinates (RA/DEC).
+- Confirms the comparison star is non-variable before analysis to avoid corrupting differential baselines.
+
+---
+
+#### 4. Interactive Differential Light Curve & Precision Metrics
+![Interactive Plotly Light Curve & Metrics](docs/screenshots/04_light_curve_and_metrics.png)
+- **Summary Metrics Cards:**
+  - **Total Frames:** 228
+  - **Valid Measurements:** 149 (65.4%)
+  - **Mean Differential Magnitude:** -7.426 mag
+  - **Precision ($\sigma$):** $\pm 0.652$ mag
+  - **Peak-to-Peak Amplitude ($\Delta m$):** $3.551$ mag
+  - **Data Quality Assessment:** Evaluates scatter and alerts on significant variability detection.
+- **Plotly Dual Subplots:**
+  - Upper plot: Inverted differential magnitude curve with hover tooltips displaying frame index, timestamp, and magnitude.
+  - Lower plot: Color-mapped brightness amplitude variation ($\Delta m$).
+
+---
+
+#### 5. High-Resolution Publication Plots
+![High-Resolution Publication Plots](docs/screenshots/05_publication_plots.png)
+- Instant access to publication-quality 300 DPI exports (`lightcurve.png` and `magnitude_vs_time_scatter.png`).
+- Features compressed time axes to properly handle multi-night observation gaps.
+
+---
+
+#### 6. Variable Star Eclipse Analysis & Transit Predictor
+![Variable Star Eclipse Analysis & Minimum Predictor](docs/screenshots/06_variable_star_eclipse_analysis.png)
+- **Automated Eclipse Detection:** Identifies the exact minimum time (`2026-03-05 14:18:25 UTC`), observed minimum magnitude (`-9.633 mag`), and transit depth ($\Delta m = 3.551$ mag).
+- **Future Transit Ephemeris:** Projects subsequent eclipse events based on orbital period presets (e.g. Algol $P = 2.867328$ days).
+- **Deepest Measurements Table:** Chronologically sorts and highlights the primary transit minimum frames.
+
+---
+
+#### 7. Interactive Data Table & Publication Exports
+![Data Table & Exports](docs/screenshots/07_data_table_and_exports.png)
+- Comprehensive tabular display of all measured frames with individual timestamps, flux levels, and sky background ADU.
+- One-click downloads for **CSV Results**, **Analysis Summary (`RESULTS_SUMMARY.txt`)**, and **Quality Report (`quality_report.txt`)**.
+
+---
+
+#### 8. SeeStar S50 Observation Best Practices Guide
+![SeeStar S50 Observation Guide](docs/screenshots/08_seestar_best_practices_guide.png)
+- Built-in operational manual tailored to the SeeStar S50 optics and Sony IMX462 sensor, covering optimal sub-exposure times (2–10s), luminance filter usage, aperture radii (8–10 px), and FWHM optimization.
+
+---
 
 ---
 
@@ -70,7 +153,7 @@ Raw FITS Files (data/input/)
 
 ### 2. Clone Repository
 ```bash
-git clone https://github.com/your-username/seestar-photometry.git
+git clone https://github.com/codeNick7/seestar-photometry.git
 cd seestar-photometry
 ```
 
@@ -118,6 +201,9 @@ Open **http://localhost:8501** to:
 3. Validate reference stars against the AAVSO VSX variable star database with 1 click.
 4. Run the photometry analysis and explore interactive Plotly light curves with zoom and hover tooltips.
 5. Predict eclipse minima and download publication plots and data tables.
+
+> [!TIP]
+> **Input FITS Datasets:** Place your raw sub-exposure `.fit` / `.fits` files directly in `data/input/`, or enter any custom path in the sidebar input field (such as `/Volumes/codeNick7/workspace/COSMOS-Observation-Planner/backend/photometry/input`). You can also enable **Load Sample Algol Dataset** to explore pre-computed 228-frame Algol light curves immediately.
 
 ---
 

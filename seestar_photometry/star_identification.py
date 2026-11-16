@@ -5,11 +5,27 @@ Integrates with SIMBAD star catalog and AAVSO VSX
 
 import logging
 import requests
+import socket
 from typing import List, Dict, Tuple, Optional
 from astropy.coordinates import SkyCoord
 import astropy.units as u
 
 logger = logging.getLogger(__name__)
+
+_ONLINE_STATUS = None
+
+
+def is_network_available() -> bool:
+    """Quick check if internet connectivity and DNS are available (cached)"""
+    global _ONLINE_STATUS
+    if _ONLINE_STATUS is not None:
+        return _ONLINE_STATUS
+    try:
+        socket.gethostbyname("vsx.aavso.org")
+        _ONLINE_STATUS = True
+    except Exception:
+        _ONLINE_STATUS = False
+    return _ONLINE_STATUS
 
 # Import star field catalog service
 try:
@@ -62,6 +78,8 @@ def query_variable_stars_vsx(ra_deg: float, dec_deg: float, radius_deg: float = 
     Returns:
         List of variable star dictionaries with ra, dec, name, type, period
     """
+    if not is_network_available():
+        return []
     try:
         # AAVSO VSX API endpoint
         # Documentation: https://www.aavso.org/vsx/index.php?view=api
@@ -84,7 +102,7 @@ def query_variable_stars_vsx(ra_deg: float, dec_deg: float, radius_deg: float = 
         logger.info(f"Querying AAVSO VSX for variables around RA={ra_deg:.4f}°, DEC={dec_deg:.4f}°")
 
         # Note: VSX API can be slow or rate-limited
-        response = requests.get(url, params=params, timeout=30)
+        response = requests.get(url, params=params, timeout=2, headers={'User-Agent': 'SeeStar-Photometry/1.0'})
 
         if response.status_code != 200:
             logger.warning(f"VSX query returned status {response.status_code}")
@@ -115,6 +133,8 @@ def query_variable_stars_simbad(ra_deg: float, dec_deg: float, radius_deg: float
     Returns:
         List of variable star dictionaries
     """
+    if not is_network_available():
+        return []
     try:
         # SIMBAD coordinate query for variable stars
         radius_arcmin = radius_deg * 60.0
@@ -129,10 +149,10 @@ def query_variable_stars_simbad(ra_deg: float, dec_deg: float, radius_deg: float
             'obj.otype': 'V*'  # Variable stars only
         }
 
-        url = "http://simbad.u-strasbg.fr/simbad/sim-coo"
+        url = "https://simbad.cds.unistra.fr/simbad/sim-coo"
 
         logger.debug(f"Querying SIMBAD for variable stars")
-        response = requests.get(url, params=params, timeout=30,
+        response = requests.get(url, params=params, timeout=2,
                               headers={'User-Agent': 'SeeStar-Photometry/1.0'})
 
         if response.status_code != 200:
@@ -167,7 +187,21 @@ def query_variable_stars_simbad(ra_deg: float, dec_deg: float, radius_deg: float
         return []
 
 
-def check_if_variable_star(ra_deg: float, dec_deg: float, tolerance_arcsec: float = 30.0) -> Optional[Dict]:
+# Curated database of primary variable stars for instant offline verification in the field
+OFFLINE_KNOWN_VARIABLES = [
+    {"name": "Algol (β Persei)", "ra": 47.0422, "dec": 40.9556, "type": "EA/SD (Eclipsing)", "period": 2.867328},
+    {"name": "ρ Persei", "ra": 45.9619, "dec": 38.8402, "type": "SRB (Semiregular)", "period": 50.0},
+    {"name": "δ Cephei", "ra": 337.2875, "dec": 58.4152, "type": "DCEP (Classical Cepheid)", "period": 5.366341},
+    {"name": "β Lyrae (Sheliak)", "ra": 282.5201, "dec": 33.3627, "type": "EB (Eclipsing Binary)", "period": 12.94061},
+    {"name": "η Aquilae", "ra": 298.1396, "dec": 1.0097, "type": "DCEP (Cepheid)", "period": 7.17664},
+    {"name": "Mira (ο Ceti)", "ra": 34.7214, "dec": -2.9776, "type": "M (Mira Variable)", "period": 331.96},
+    {"name": "Betelgeuse (α Orionis)", "ra": 88.7929, "dec": 7.4071, "type": "SRC (Pulsating Supergiant)", "period": 420.0},
+    {"name": "χ Cygni", "ra": 296.9069, "dec": 32.9142, "type": "M (Mira)", "period": 408.0},
+    {"name": "R Coronae Borealis", "ra": 237.1188, "dec": 28.3033, "type": "RCB", "period": 44.0},
+]
+
+
+def check_if_variable_star(ra_deg: float, dec_deg: float, tolerance_arcsec: float = 30.0, **kwargs) -> Optional[Dict]:
     """
     Check if a given position matches a known variable star
 
@@ -179,23 +213,37 @@ def check_if_variable_star(ra_deg: float, dec_deg: float, tolerance_arcsec: floa
     Returns:
         Variable star info dict if matched, None otherwise
     """
+    tolerance_arcsec = kwargs.get('search_radius_arcsec', tolerance_arcsec)
     try:
-        # Query small radius around position
-        radius_deg = (tolerance_arcsec / 3600.0) * 2  # Convert arcsec to deg, double for safety
+        target_coord = SkyCoord(ra=ra_deg * u.deg, dec=dec_deg * u.deg)
 
-        # Try VSX first (more comprehensive for variables)
-        variables = query_variable_stars_vsx(ra_deg, dec_deg, radius_deg)
+        # 1. Fast check against offline known variable stars catalog
+        for var in OFFLINE_KNOWN_VARIABLES:
+            var_coord = SkyCoord(ra=var['ra'] * u.deg, dec=var['dec'] * u.deg)
+            sep = target_coord.separation(var_coord).arcsec
+            if sep <= tolerance_arcsec:
+                match = dict(var)
+                match['separation_arcsec'] = float(sep)
+                return match
 
-        # Fallback to SIMBAD if VSX returns nothing
+        # 2. Online queries (with short timeout in case offline)
+        radius_deg = (tolerance_arcsec / 3600.0) * 2
+        variables = []
+        try:
+            variables = query_variable_stars_vsx(ra_deg, dec_deg, radius_deg)
+        except Exception:
+            pass
+
         if not variables:
-            variables = query_variable_stars_simbad(ra_deg, dec_deg, radius_deg)
+            try:
+                variables = query_variable_stars_simbad(ra_deg, dec_deg, radius_deg)
+            except Exception:
+                pass
 
         if not variables:
             return None
 
         # Find closest match
-        target_coord = SkyCoord(ra=ra_deg*u.deg, dec=dec_deg*u.deg)
-
         closest = None
         min_sep = tolerance_arcsec
 
@@ -212,6 +260,8 @@ def check_if_variable_star(ra_deg: float, dec_deg: float, tolerance_arcsec: floa
         return closest
 
     except Exception as e:
+        logger.error(f"Error checking variable star: {e}")
+        return None
         logger.error(f"Error checking variable star: {e}")
         return None
 

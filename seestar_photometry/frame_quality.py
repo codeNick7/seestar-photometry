@@ -263,9 +263,11 @@ class FrameQualityAnalyzer:
             box_size = 11
             half_box = box_size // 2
 
+            x_col = 'x_centroid' if 'x_centroid' in sources.colnames else 'xcentroid'
+            y_col = 'y_centroid' if 'y_centroid' in sources.colnames else 'ycentroid'
             for source in sources[:15]:  # Use up to 15 brightest
-                x = int(round(source['xcentroid']))
-                y = int(round(source['ycentroid']))
+                x = int(round(source[x_col]))
+                y = int(round(source[y_col]))
 
                 # Check bounds
                 if (x - half_box < 0 or x + half_box >= image.shape[1] or

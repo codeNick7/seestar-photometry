@@ -506,8 +506,10 @@ def measure_fwhm_from_stars(image: np.ndarray, n_stars: int = 10) -> Optional[fl
         # Measure FWHM for each star
         fwhm_values = []
 
+        x_col = 'x_centroid' if 'x_centroid' in sources.colnames else 'xcentroid'
+        y_col = 'y_centroid' if 'y_centroid' in sources.colnames else 'ycentroid'
         for source in sources[:n_stars]:
-            x, y = source['xcentroid'], source['ycentroid']
+            x, y = source[x_col], source[y_col]
 
             # Extract cutout
             box_size = 15

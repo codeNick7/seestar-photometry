@@ -17,6 +17,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
+from astropy.io import fits
 
 from seestar_photometry.config import PhotometryConfig, PRESETS, get_preset_config
 from seestar_photometry.ui.app_helpers import (
@@ -100,8 +101,12 @@ def main():
         current_preset = PRESETS[preset_key_map[preset_choice]]
 
         st.subheader("Data Paths")
-        default_input = "data/input"
-        default_output = "data/output"
+        cosmos_input = Path("/Volumes/codeNick7/workspace/COSMOS-Observation-Planner/backend/photometry/input")
+        if cosmos_input.exists() and not list((ROOT_DIR / "data" / "input").glob("*.fit*")):
+            default_input = str(cosmos_input)
+        else:
+            default_input = str(ROOT_DIR / "data" / "input")
+        default_output = str(ROOT_DIR / "data" / "output")
 
         # Check if sample data exists
         sample_path = ROOT_DIR / "data" / "sample"
@@ -222,7 +227,7 @@ def main():
                     # Check WCS
                     wcs = None
                     try:
-                        with fits.open(selected_file) as hd:
+                        with fits.open(selected_file, memmap=False) as hd:
                             wcs = create_wcs_from_header(dict(hd[0].header), raw_img.shape)
                     except Exception:
                         pass
@@ -230,15 +235,26 @@ def main():
                     if wcs is not None:
                         ra_r1, dec_r1 = pixel_to_world(wcs, r1x, r1y)
                         if ra_r1 is not None and dec_r1 is not None:
-                            is_var, var_info = check_if_variable_star(ra_r1, dec_r1, search_radius_arcsec=30.0)
-                            if is_var:
-                                st.error(f"⚠️ Warning: Reference Star 1 matches known variable star **{var_info.get('name')}** (Type: {var_info.get('type')})! Choose another star.")
+                            var_info = check_if_variable_star(ra_r1, dec_r1, tolerance_arcsec=30.0)
+                            if var_info:
+                                st.session_state["vsx_status"] = ("error", f"⚠️ Warning: Reference Star 1 matches known variable star **{var_info.get('name')}** (Type: {var_info.get('type')})! Choose another star.")
                             else:
-                                st.success(f"✓ Reference Star 1 (RA {ra_r1:.4f}°, Dec {dec_r1:.4f}°) is safe (no known variable match).")
+                                st.session_state["vsx_status"] = ("success", f"✓ Reference Star 1 (RA {ra_r1:.4f}°, Dec {dec_r1:.4f}°) is safe (no known variable match).")
                         else:
-                            st.warning("Could not convert pixel coordinates to celestial coordinates.")
+                            st.session_state["vsx_status"] = ("warning", "Could not convert pixel coordinates to celestial coordinates.")
                     else:
-                        st.info("WCS coordinates not detected in FITS header. Automatic variable checking requires RA/DEC.")
+                        st.session_state["vsx_status"] = ("info", "WCS coordinates not detected in FITS header. Automatic variable checking requires RA/DEC.")
+
+            if "vsx_status" in st.session_state:
+                status_type, msg = st.session_state["vsx_status"]
+                if status_type == "error":
+                    st.error(msg)
+                elif status_type == "success":
+                    st.success(msg)
+                elif status_type == "warning":
+                    st.warning(msg)
+                else:
+                    st.info(msg)
 
             # Render overlay plot with apertures
             fig, ax = plt.subplots(figsize=(10, 8))

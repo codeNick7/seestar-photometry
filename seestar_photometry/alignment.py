@@ -147,8 +147,10 @@ class EnhancedAligner:
 
             # Skip centroid refinement for speed - DAOStarFinder already provides good positions
             positions = []
+            x_col = 'x_centroid' if 'x_centroid' in sources.colnames else 'xcentroid'
+            y_col = 'y_centroid' if 'y_centroid' in sources.colnames else 'ycentroid'
             for source in sources:
-                x, y = source['xcentroid'], source['ycentroid']
+                x, y = source[x_col], source[y_col]
                 flux = source['flux']
                 positions.append([x, y, flux])
 
