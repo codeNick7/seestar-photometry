@@ -1,0 +1,39 @@
+======================================================================
+              PHOTOMETRY ANALYSIS RESULTS
+======================================================================
+
+DATA QUALITY ASSESSMENT
+----------------------------------------------------------------------
+Overall Quality: NEEDS IMPROVEMENT
+Measurement Precision (std): 0.651894 magnitudes
+Success Rate: 65.4% (149/228 frames)
+
+MEASUREMENTS
+----------------------------------------------------------------------
+Total Frames Processed........... 228
+Valid Measurements............... 149
+Mean Differential Magnitude...... -7.426386
+Standard Deviation............... 0.651894
+Minimum Magnitude................ -9.632855
+Maximum Magnitude................ -6.081868
+Total Amplitude (max-min)........ 3.550987
+
+WHAT THIS MEANS
+----------------------------------------------------------------------
+• High scatter in measurements.
+• Try: adjusting aperture size, choosing different reference stars,
+•      or checking for clouds/poor seeing conditions.
+• Significant variability detected (amplitude: 3.551 mag)!
+• Your target star may be variable - interesting result!
+• Note: 34.6% of frames failed alignment.
+• This might indicate tracking issues or very different field orientations.
+
+NEXT STEPS
+----------------------------------------------------------------------
+1. Check lightcurve.png - Look for patterns or trends
+2. Review magnitude_vs_frame.png - Identify any bad frames
+3. Examine photometry_results.csv - For detailed analysis
+
+4. Consider re-running with adjusted parameters if needed.
+
+======================================================================

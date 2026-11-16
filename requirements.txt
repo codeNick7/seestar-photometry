@@ -1,0 +1,20 @@
+# Core scientific and astronomical libraries
+numpy>=1.24.0
+scipy>=1.10.0
+astropy>=6.0.0
+photutils>=2.0.0
+astroalign>=2.6.0
+scikit-image>=0.22.0
+
+# Data analysis and plotting
+pandas>=2.0.0
+matplotlib>=3.8.0
+tqdm>=4.65.0
+
+# Network and ephemeris
+requests>=2.31.0
+skyfield>=1.49
+
+# Interactive Web UI
+streamlit>=1.30.0
+plotly>=5.18.0

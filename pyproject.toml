@@ -1,0 +1,72 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "seestar-photometry"
+version = "1.0.0"
+description = "High-performance differential photometry pipeline for ZWO SeeStar S50 and smart telescopes"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "COSMOS / SeeStar Photometry Contributors" }
+]
+keywords = [
+    "astronomy",
+    "photometry",
+    "seestar",
+    "seestar-s50",
+    "fits",
+    "variable-stars",
+    "exoplanet-transits",
+    "lightcurve",
+    "astropy",
+    "photutils"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Astronomy",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "astropy>=6.0.0",
+    "photutils>=2.0.0",
+    "astroalign>=2.6.0",
+    "scikit-image>=0.22.0",
+    "pandas>=2.0.0",
+    "matplotlib>=3.8.0",
+    "tqdm>=4.65.0",
+    "requests>=2.31.0",
+    "skyfield>=1.49",
+    "streamlit>=1.30.0",
+    "plotly>=5.18.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.1.0",
+    "black>=24.0.0",
+    "flake8>=7.0.0",
+]
+
+[project.scripts]
+seestar-photometry = "seestar_photometry.photometry_engine:main"
+seestar-photometry-gui = "run_web_ui:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["seestar_photometry*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]

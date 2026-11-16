@@ -1,0 +1,119 @@
+======================================================================
+           FRAME QUALITY ANALYSIS REPORT
+======================================================================
+
+SUMMARY
+----------------------------------------------------------------------
+Total Frames Analyzed:           228
+High Quality Frames (>80):       2 (0.9%)
+Moderate Quality (60-80):        226 (99.1%)
+Poor Quality (<60):              0 (0.0%)
+
+SATURATION WARNINGS
+----------------------------------------------------------------------
+Frames with Saturation (original): 228
+Brightness Reduction Applied:     228 frames
+  Average scale factor:           0.100
+  Minimum scale factor:           0.100
+
+✓ Brightness reduction was automatically applied to saturated frames
+  to mitigate saturation effects during photometry.
+  (Saturation values shown are from original frames before reduction)
+
+Saturated Frames (original):
+  Frame 0: 1.2% saturated pixels [reduced by 0.100]
+  Frame 1: 1.2% saturated pixels [reduced by 0.100]
+  Frame 2: 0.6% saturated pixels [reduced by 0.100]
+  Frame 3: 0.5% saturated pixels [reduced by 0.100]
+  Frame 4: 0.6% saturated pixels [reduced by 0.100]
+  Frame 5: 0.6% saturated pixels [reduced by 0.100]
+  Frame 6: 0.6% saturated pixels [reduced by 0.100]
+  Frame 7: 0.5% saturated pixels [reduced by 0.100]
+  Frame 8: 0.5% saturated pixels [reduced by 0.100]
+  Frame 9: 0.6% saturated pixels [reduced by 0.100]
+  Frame 10: 0.6% saturated pixels [reduced by 0.100]
+  Frame 11: 0.6% saturated pixels [reduced by 0.100]
+  Frame 12: 0.6% saturated pixels [reduced by 0.100]
+  Frame 13: 0.5% saturated pixels [reduced by 0.100]
+  Frame 14: 0.6% saturated pixels [reduced by 0.100]
+  Frame 15: 0.5% saturated pixels [reduced by 0.100]
+  Frame 16: 0.5% saturated pixels [reduced by 0.100]
+  Frame 17: 0.6% saturated pixels [reduced by 0.100]
+  Frame 18: 0.6% saturated pixels [reduced by 0.100]
+  Frame 19: 0.6% saturated pixels [reduced by 0.100]
+  Frame 20: 0.6% saturated pixels [reduced by 0.100]
+  Frame 21: 0.5% saturated pixels [reduced by 0.100]
+  Frame 22: 0.5% saturated pixels [reduced by 0.100]
+  Frame 23: 0.6% saturated pixels [reduced by 0.100]
+  Frame 24: 0.6% saturated pixels [reduced by 0.100]
+  Frame 25: 0.6% saturated pixels [reduced by 0.100]
+  Frame 26: 0.6% saturated pixels [reduced by 0.100]
+  Frame 27: 0.6% saturated pixels [reduced by 0.100]
+  Frame 28: 0.6% saturated pixels [reduced by 0.100]
+  Frame 29: 0.6% saturated pixels [reduced by 0.100]
+  Frame 30: 0.6% saturated pixels [reduced by 0.100]
+  Frame 31: 0.6% saturated pixels [reduced by 0.100]
+  Frame 32: 0.6% saturated pixels [reduced by 0.100]
+  Frame 33: 0.6% saturated pixels [reduced by 0.100]
+  Frame 34: 0.5% saturated pixels [reduced by 0.100]
+  Frame 35: 0.6% saturated pixels [reduced by 0.100]
+  Frame 36: 0.6% saturated pixels [reduced by 0.100]
+  Frame 37: 0.6% saturated pixels [reduced by 0.100]
+  Frame 38: 0.6% saturated pixels [reduced by 0.100]
+  Frame 39: 0.6% saturated pixels [reduced by 0.100]
+  Frame 40: 0.6% saturated pixels [reduced by 0.100]
+  Frame 41: 0.6% saturated pixels [reduced by 0.100]
+  Frame 42: 0.6% saturated pixels [reduced by 0.100]
+  Frame 43: 0.6% saturated pixels [reduced by 0.100]
+  Frame 44: 0.6% saturated pixels [reduced by 0.100]
+  Frame 45: 0.6% saturated pixels [reduced by 0.100]
+  Frame 46: 0.6% saturated pixels [reduced by 0.100]
+  Frame 47: 0.6% saturated pixels [reduced by 0.100]
+  Frame 48: 0.6% saturated pixels [reduced by 0.100]
+  Frame 49: 0.6% saturated pixels [reduced by 0.100]
+  ... and 178 more frames
+
+COSMIC RAY DETECTIONS
+----------------------------------------------------------------------
+Total Cosmic Rays Removed:       7046
+Average per Frame:               30.9
+Frames with >10 Hits:            218
+
+Frames with high cosmic ray counts:
+  Frame 0: 19 cosmic rays
+  Frame 1: 15 cosmic rays
+  Frame 2: 49 cosmic rays
+  Frame 3: 53 cosmic rays
+  Frame 4: 40 cosmic rays
+  Frame 5: 46 cosmic rays
+  Frame 6: 34 cosmic rays
+  Frame 7: 37 cosmic rays
+  Frame 8: 58 cosmic rays
+  Frame 9: 31 cosmic rays
+
+CLOUD CONDITIONS
+----------------------------------------------------------------------
+Clear Conditions (score <20):    2 frames (0.9%)
+Partly Cloudy (20-50):          222 frames (97.4%)
+Cloudy (>50):                   4 frames (1.8%)
+
+MOON GLARE ANALYSIS
+----------------------------------------------------------------------
+Moon Phase (average):            4.9%
+Moon Distance (average):         131.9°
+✓ No significant moon glare detected.
+
+FWHM ANALYSIS (Seeing Quality)
+----------------------------------------------------------------------
+Best Seeing:                     5.02 pixels (Frame 171)
+Worst Seeing:                    7.13 pixels (Frame 111)
+Average FWHM:                    5.70 pixels
+
+⚠ Poor seeing - significant atmospheric turbulence.
+
+RECOMMENDATIONS
+----------------------------------------------------------------------
+• 228 frames were originally saturated - brightness reduction was applied to 228 frames
+• Consider filtering frames with quality_score > 60
+
+======================================================================
